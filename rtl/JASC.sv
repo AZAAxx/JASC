@@ -1,6 +1,6 @@
 module JASC (
 	input logic clk,
-	input logic rst,
+	input logic rst_n,
 	
 	// Instruction memory interface  -- from ibex!
 	output logic                         instr_req_o,
@@ -32,7 +32,7 @@ module JASC (
 	//....
 	);
 	
-	
+	// PC update part needs its own adder
 	
 	
 endmodule
