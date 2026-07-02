@@ -2,7 +2,7 @@ package jasc_pkg;
 
 
 
-	typedef enum logic [6:0] {
+	typedef enum logic [3:0] {
 		OPCODE_LOAD     = 7'h03, 
 		OPCODE_OP_IMM   = 7'h13, 
 		OPCODE_AUIPC    = 7'h17, 
@@ -66,7 +66,7 @@ package jasc_pkg;
 	
 	
 	// Mem Operation Enum
-	typedef enum logic [2:0] {
+	typedef enum logic [1:0] {
 		NONE,
 		LOAD,
 		STORE
@@ -78,6 +78,7 @@ package jasc_pkg;
 		PC_1,                       // PC = PC + 1
 		PC_IMM,                     // PC = PC + IMM
 		RS1_IMM                     // PC = RS1 = IMM
+		BRANCH                      // PC = PC + IMM     IF alu_res = 1   (enables branches)
 	} next_pc_sel_e;
 
 	
@@ -87,6 +88,17 @@ package jasc_pkg;
 		MEM,
 		IMM
 	} rd_wdata_sel_e;
+	
+	// Comparators for branch operations
+	typedef enum logic [2:0] {
+		NONE,
+		EQ,
+		NE,
+		LT,
+		GE,
+		LTU,
+		GEU
+	} branch_type_e;
 	
 	
 	
@@ -111,6 +123,7 @@ package jasc_pkg;
 		logic [4:0]    rd_sel;
 		rd_wdata_sel_e rd_wdata_sel;
 		logic          rd_write_en;
+		branch_type_e  branch_type;
 	} ctrl_signals_t;
 	
 	
