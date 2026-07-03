@@ -1,8 +1,6 @@
 package jasc_pkg;
 
-
-
-	typedef enum logic [3:0] {
+	typedef enum logic [6:0] {
 		OPCODE_LOAD     = 7'h03, 
 		OPCODE_OP_IMM   = 7'h13, 
 		OPCODE_AUIPC    = 7'h17, 
@@ -17,6 +15,135 @@ package jasc_pkg;
 	
 	
 	
+	
+	/////////////////////////////////
+	// Instruction Control Signals //
+	/////////////////////////////////
+		
+		
+	// ALU Operand select MUX Enums
+	typedef enum logic [1:0] { OPA_RF, OPA_IMM, OPA_PC} opA_sel_e;
+	typedef enum logic [1:0] { OPB_RF, OPB_IMM, OPB_IMM_4 } opB_sel_e;
+	
+	typedef enum logic [3:0] {
+		ALU_NONE,
+		ALU_ADD,
+		ALU_SUB, 
+		ALU_AND,
+		ALU_OR,
+		ALU_XOR,
+		ALU_SLL,
+		ALU_SRL,
+		ALU_SRA,
+		ALU_SLT,
+		ALU_SLTU
+	} alu_op_e;
+	
+	// Next PC MUX Enum
+	typedef enum logic [1:0] {
+		NEXTPC_BRANCH                      // PC = PC + IMM     IF alu_res = 1   (enables branches)
+		NEXTPC_PC_1,                       // PC = PC + 1
+		NEXTPC_PC_IMM,                     // PC = PC + IMM
+		NEXTPC_RS1_IMM                     // PC = RS1 = IMM
+	} next_pc_sel_e;
+	
+	// Comparators for branch operations
+	typedef enum logic [2:0] {
+		BRANCH_NONE,
+		BRANCH_EQ,
+		BRANCH_NE,
+		BRANCH_LT,
+		BRANCH_GE,
+		BRANCH_LTU,
+		BRANCH_GEU
+	} branch_type_e;
+	
+	// Mem Operation Enum
+	typedef enum logic [1:0] { MEM_NONE, MEM_LOAD, MEM_STORE } mem_op_e;
+	
+	// Regfile WB  MUX Enum
+	typedef enum logic [1:0] { RD_ALU, RD_MEM, RD_IMM } rd_wdata_sel_e;
+	
+	
+	
+
+	
+	
+	typedef struct packed {
+		opA_sel_e      opA_sel;      // Execute
+		opB_sel_e      opB_sel;
+		alu_op_e       alu_op;
+		next_pc_sel_e  next_pc_sel;
+		branch_type_e  branch_type;
+		mem_op_e       mem_op;       // Memory
+		rd_wdata_sel_e rd_wdata_sel; // Writeback
+		logic          rd_write_en;
+	} ctrl_signals_t;
+	
+	
+	// Later to be used for RVFI
+	typedef struct packed {
+		logic [31:0]  instr;
+		logic [31:0]  pc_rdata;
+		logic [31:0]  pc_wdata;
+		logic [4:0]   rs1_addr;
+		logic [4:0]   rs2_addr;
+		logic [4:0]   rd_addr;
+		logic [31:0]  rs1_rdata;
+		logic [31:0]  rs2_rdata;
+		logic [31:0]  rd_wdata;
+		logic [31:0]  mem_addr;
+		logic [3:0]   mem_rmask;
+		logic [3:0]   mem_wmask;
+		logic [31:0]  mem_rdata;
+		logic [31:0]  mem_wdata;
+		logic         trap;
+	} instr_info_t;
+	
+	
+	
+	
+	
+	////////////////////////
+	// Pipeline Registers //
+	////////////////////////
+
+	typedef struct packed {
+		logic          valid;
+		logic [31:0]   instr;
+		logic [31:0]   pc;
+	} if_id_t;
+	
+	
+	typedef struct packed {
+		logic          valid;
+		ctrl_signals_t ctrl;
+		instr_info_t   info;
+		logic [31:0]   imm;
+	} id_ex_t;
+
+	
+	typedef struct packed {
+		logic          valid;
+		ctrl_signals_t ctrl;
+		instr_info_t   info;
+		logic [31:0]   alu_res;
+		logic          flag_z;
+		logic          flag_n;
+	} ex_mem_t;
+
+	
+	typedef struct packed {
+		logic          valid;
+		ctrl_signals_t ctrl;
+		instr_info_t   info;
+		logic [31:0]   alu_res;
+		logic [31:0]   mem_rdata;
+	} mem_wb_t;
+	
+	
+	
+	
 	//////////////////////////////
 	// Pipeline Control Signals //
 	//////////////////////////////
@@ -27,263 +154,18 @@ package jasc_pkg;
 	} pipeline_ctrl_signals_t;
 	
 	
-	
-	
-	
-	
-	
-	/////////////////////////////////
-	// Instruction Control Signals //
-	/////////////////////////////////
-		
-		
-	// ALU Operand select MUX Enums
-	typedef enum logic [1:0] {
-		RF,
-		IMM,
-		PC
-	} opA_sel_e;
-	
-	typedef enum logic [1:0] {
-		RF,
-		IMM,
-		IMM_4    // immediate = 4
-	} opB_sel_e;
-	
-	typedef enum logic [3:0] {
-		NONE,
-		ADD,
-		SUB, 
-		AND,
-		OR,
-		XOR,
-		SLL,
-		SRL,
-		SRA,
-		SLT,
-		SLTU
-	} alu_op_e;
-	
-	
-	// Mem Operation Enum
-	typedef enum logic [1:0] {
-		NONE,
-		LOAD,
-		STORE
-	} mem_op_e;
-	
-	
-	// Next PC MUX Enum
-	typedef enum logic [1:0] {
-		PC_1,                       // PC = PC + 1
-		PC_IMM,                     // PC = PC + IMM
-		RS1_IMM                     // PC = RS1 = IMM
-		BRANCH                      // PC = PC + IMM     IF alu_res = 1   (enables branches)
-	} next_pc_sel_e;
-
-	
-	// Regfile WB  MUX Enum
-	typedef enum logic [1:0] {
-		ALU,
-		MEM,
-		IMM
-	} rd_wdata_sel_e;
-	
-	// Comparators for branch operations
-	typedef enum logic [2:0] {
-		NONE,
-		EQ,
-		NE,
-		LT,
-		GE,
-		LTU,
-		GEU
-	} branch_type_e;
-	
-	
-	
-	typedef struct packed {
-		// RegFile controls (Decode)
-		logic [4:0]    rs1_sel;
-		logic [4:0]    rs2_sel;
-		
-		// ALU controls (Execute)
-		opA_sel_e      opA_sel;
-		opB_sel_e      opB_sel;
-		alu_op_e       alu_op;
-		logic [31:0]   alu_mask;
-		
-		// Memory controls (Memory)
-		mem_op_e       mem_op;
-		logic [31:0]   mem_addr_sel;
-		logic [31:0]   mem_wdata_sel;
-		
-		// Writeback controls (WB)
-		next_pc_sel_e  next_pc_sel;
-		logic [4:0]    rd_sel;
-		rd_wdata_sel_e rd_wdata_sel;
-		logic          rd_write_en;
-		branch_type_e  branch_type;
-	} ctrl_signals_t;
-	
-	
-	
-	
-	
-
-	////////////////////////
-	// Pipeline Registers //
-	////////////////////////
-
-	typedef struct packed {
-		logic        valid;
-		
-		// Data
-		logic [31:0] pc;
-		logic [31:0] instr;
-		//logic        compressed;
-		//logic [31:0] instr2;
-	} fetch_packet_t;
-	
-	
-	
-	
-	
-	typedef struct packed {
-		logic        valid;
-		
-		// Instruction Data
-		logic [31:0] pc;
-		logic [31:0] instr;
-		//opcode_e     opcode;
-		logic [4:0]  rs1;
-		logic [4:0]  rs2;
-		logic [4:0]  rd;
-		//logic [2:0]  funct3;
-		//logic [6:0]  funct7;
-		logic [31:0] imm;
-		
-		// RegFile read values
-		logic [31:0] rs1_data;
-		logic [31:0] rs2_data;
-		
-		// Control Signals
-		ctrl_signals_t control;
-		
-	} decode_packet_t;
-
-	
-	
-	typedef struct packed {
-		logic        valid;
-		
-		//Data
-		logic [31:0] pc;
-		logic [31:0] instr;
-		logic [4:0]  rd;
-		
-		//ALU results
-		logic [31:0] alu_res;
-		logic        flag_z;
-		logic        flag_n;
-		
-		// Control signals
-		ctrl_signals_t control;
-	} execute_packet_t;
-
-	
-	
-	
-	typedef struct packed {
-		logic valid;
-		
-		//Data
-		logic [31:0] pc;
-		logic [31:0] instr;
-		logic [4:0]  rd;
-		
-		// Memory results
-		logic [31:0] mem_rdata;
-		
-		// Control signals
-		ctrl_signals_t control;
-	} memory_packet_t;
-	
-	
-	
-	typedef struct packed {
-		logic valid;
-		
-		//Data
-		logic [31:0] pc;
-		logic [31:0] instr;
-		logic [4:0]  rd;
-		
-		// Control Signals
-		ctrl_signals_t control;
-	} commit_packet_t;
-
-	
-	
-	typedef struct packed {
-	
-	} rvfi_retire_info_t;
-	
-	
 endpackage
 	
 	
 	
+
+//////////////////////
+// Memory Interface //
+//////////////////////
+
+// Write these later
+// They share the same physical memory but different interfaces
+instruction_if imem_bus;
+memory_if      dmem_bus;
 	
-	
-	//////////////////////
-	// Memory Interface //
-	//////////////////////
-	
-	interface memory_if (input logic clk, input logic rst_n);
-		logic [31:0] mem_addr;
-		logic [31:0] mem_rdata;
-		logic [31:0] mem_wdata;
-		logic        mem_write_en;
-		logic        mem_read_en;
-	
-		modport Memory (
-			input clk, rst_n, mem_addr, mem_wdata, mem_write_en, mem_read_en;
-			output mem_rdata;
-		);
-			
-		modport Core (
-			input clk, rst_n, mem_rdata;
-			ouptput mem_addr, mem_wdata, mem_write_en, mem_read_en;
-		);
-	endinterface
-	
-	
-	
-	
-	/////////////////////////////
-	// Register File Interface //
-	/////////////////////////////
-	
-	interface register_file_if (input logic clk, input logic rst_n);
-		logic [4:0]  regA,
-		logic [4:0]  regB,
-		logic [31:0] regA_rdata,
-		logic [31:0] regB_rdata,
-		
-		logic [4:0]  regW,
-		logic [31:0] regW_wdata
-		logic        write_e,
-		);
-		
-		modport RegFile (
-			input clk, rst_n, regA, regB, regW, write_e, regW_wdata;
-			output regA_rdata, regB_rdata;
-		);
-		
-		modport Core (
-			input clk, rst_n, regA_rdata, regB_rdata;
-			output regA, regB, regW, write_e, regW_wdata;
-		);
-	endinterface
 	

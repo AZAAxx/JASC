@@ -39,7 +39,7 @@
 
 set_global_assignment -name FAMILY "Cyclone V"
 set_global_assignment -name DEVICE 5CGXFC7C7F23C8
-set_global_assignment -name TOP_LEVEL_ENTITY JASC
+set_global_assignment -name TOP_LEVEL_ENTITY top
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 25.1STD.0
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "07:08:44  MAY 12, 2026"
 set_global_assignment -name LAST_QUARTUS_VERSION "25.1std.0 Lite Edition"
@@ -62,8 +62,16 @@ set_global_assignment -name SYSTEMVERILOG_FILE jasc_decoder.sv
 set_global_assignment -name SYSTEMVERILOG_FILE jasc_fsm.sv
 set_global_assignment -name SYSTEMVERILOG_FILE jasc_register_file.sv
 set_global_assignment -name SYSTEMVERILOG_FILE jasc_ALU.sv
-set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+set_global_assignment -name SYSTEMVERILOG_FILE jasc_pkg.sv
+set_global_assignment -name SYSTEMVERILOG_FILE top.sv
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
-set_global_assignment -name SYSTEMVERILOG_FILE jasc_pkg.sv
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
+set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+set_global_assignment -name SYSTEMVERILOG_FILE fetch_stage.sv
+set_global_assignment -name SYSTEMVERILOG_FILE decode_stage.sv
+set_global_assignment -name SYSTEMVERILOG_FILE execute_stage.sv
+set_global_assignment -name SYSTEMVERILOG_FILE memory_stage.sv
+set_global_assignment -name SYSTEMVERILOG_FILE writeback_stage.sv

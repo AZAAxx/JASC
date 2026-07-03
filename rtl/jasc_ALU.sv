@@ -1,13 +1,12 @@
-module jasc_ALU 
-	import jasc_pkg::*;
+module jasc_ALU import jasc_pkg::*;
 	(
-	input logic [31:0]   a,
-	input logic [31:0]   b,
-	input alu_op_e       alu_op,
-	
-	output logic [31:0] result,
-	output logic        flag_z,
-	output logic        flag_n
+		input logic [31:0]   a,
+		input logic [31:0]   b,
+		input alu_op_e       alu_op,
+		
+		output logic [31:0] result,
+		output logic        flag_z,
+		output logic        flag_n
 	);
 	
 	always_comb begin
