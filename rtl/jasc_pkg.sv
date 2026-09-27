@@ -76,6 +76,7 @@ package jasc_pkg;
 		next_pc_sel_e  next_pc_sel;
 		branch_type_e  branch_type;
 		mem_op_e       mem_op;       // Memory
+		logic [3:0]    mem_byte_en;
 		rd_wdata_sel_e rd_wdata_sel; // Writeback
 		logic          rd_write_en;
 	} ctrl_signals_t;
@@ -92,11 +93,11 @@ package jasc_pkg;
 		logic [31:0]  rs1_rdata;
 		logic [31:0]  rs2_rdata;
 		logic [31:0]  rd_wdata;
-		logic [31:0]  mem_addr;
+		logic [31:0]  mem_addr;      // ALU res
 		logic [3:0]   mem_rmask;
 		logic [3:0]   mem_wmask;
 		logic [31:0]  mem_rdata;
-		logic [31:0]  mem_wdata;
+		logic [31:0]  mem_wdata;     // rs2
 		logic         trap;
 	} instr_info_t;
 	
@@ -130,6 +131,7 @@ package jasc_pkg;
 		logic [31:0]   alu_res;
 		logic          flag_z;
 		logic          flag_n;
+		logic [31:0]   imm;
 	} ex_mem_t;
 
 	
@@ -139,6 +141,7 @@ package jasc_pkg;
 		instr_info_t   info;
 		logic [31:0]   alu_res;
 		logic [31:0]   mem_rdata;
+		logic [31:0]   imm;
 	} mem_wb_t;
 	
 	
@@ -154,6 +157,35 @@ package jasc_pkg;
 	} pipeline_ctrl_signals_t;
 	
 	
+	
+	/////////////////////////////////////////
+	// Memory request and response structs //
+	/////////////////////////////////////////
+	
+	typedef struct packed {
+		logic        valid;
+		logic [31:0] pc;
+	} imem_req_t;
+
+		typedef struct packed {
+		logic        valid;
+		logic [31:0] instr;
+	} imem_rsp_t;
+	
+	
+	typedef struct packed {
+		logic        valid;
+		logic        we;
+		logic [31:0] addr;
+		logic [31:0] wdata;
+		logic [3:0]  wstrb;
+	} dmem_req_t;
+	
+	typedef struct packed {
+		logic        valid;
+		logic [31:0] rdata;
+	} dmem_rsp_t;
+	
 endpackage
 	
 	
@@ -163,9 +195,30 @@ endpackage
 // Memory Interface //
 //////////////////////
 
-// Write these later
-// They share the same physical memory but different interfaces
-instruction_if imem_bus;
-memory_if      dmem_bus;
+interface mem_if;
+
+    // Request
+    logic                   valid;      // Request is valid
+	 logic [31:0]            addr;
+    logic                   we;         // Write enable
+    logic [3:0]             wstrb;      // Byte enables
+    logic [31:0]            wdata;
+
+    // Response
+	 logic                   ready;      // Memory accepts request
+    logic                   rvalid;     // Read data valid
+    logic [31:0]            rdata;
+
+    modport master (  // core
+        output valid, addr, we, wstrb, wdata,
+        input  ready, rvalid, rdata
+    );
+
+    modport slave (    // memory
+        input  valid, addr, we, wsrtb, wdata,
+        output ready, rvalid, rdata
+    );
+
+endinterface
 	
 	

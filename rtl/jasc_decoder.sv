@@ -82,14 +82,7 @@ module jasc_decoder import jasc_pkg::*
 					funct7 = '0;
 					imm    = signed'({instr[31], instr[19:12], instr[20], instr[30:21], 1'b0});
 				end
-			default: begin
-					rd     = '0;
-					funct3 = '0;
-					rs1    = '0;
-					rs2    = '0;
-					funct7 = '0;
-					imm    = '0;
-				end
+			default: // throw an exception
 		endcase
 	end
 	
@@ -143,7 +136,7 @@ module jasc_decoder import jasc_pkg::*
 						7'h05: ctrl.branch_type = BRANCH_GE;
 						7'h06: ctrl.branch_type = BRANCH_LTU;
 						7'h07: ctrl.branch_type = BRANCH_GEU;
-						default: ctrl.branch_type = BRANCH_NONE;
+						default: // throw an exception
 					endcase
 				end
 			OPCODE_JAL: begin
@@ -200,16 +193,16 @@ module jasc_decoder import jasc_pkg::*
 						end
 						3'h6: ctrl.alu_op = ALU_OR;
 						3'h7: ctrl.alu_op = ALU_AND;
-						default: ctrl.alu_op = ALU_NONE;
 					endcase
 				end
 			OPCODE_LOAD, 
 			OPCODE_STORE: begin
 					ctrl.alu_op = ALU_ADD;
 					unique case (funct3)
-						3'h0, 3'h4: ctrl.mem_byte_en = 4'b0011;   // for lb, lh, sb, sh
-						3'h1, 3'h5: ctrl.mem_byte_en = 4'b1111;
-						default: ctrl.mem_byte_en = '1;
+						3'h0, 3'h4: ctrl.mem_byte_en = 4'b0001;   // lb, sb
+						3'h1, 3'h5: ctrl.mem_byte_en = 4'b0011;   // lh, sh
+						3'h2: ctrl.mem_byte_en = 4'b1111;
+						default: // throw an exception
 					endcase
 				end
 			OPCODE_BRANCH: begin
@@ -222,7 +215,6 @@ module jasc_decoder import jasc_pkg::*
 			OPCODE_AUIPC:  ctrl.alu_op = ALU_ADD;
 			OPCODE_LUI, 
 			OPCODE_SYSTEM: ctrl.alu_op = ALU_NONE;
-			default:       ctrl.alu_op = ALU_NONE;
 		endcase
 	end
 	

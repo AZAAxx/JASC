@@ -75,3 +75,4 @@ set_global_assignment -name SYSTEMVERILOG_FILE decode_stage.sv
 set_global_assignment -name SYSTEMVERILOG_FILE execute_stage.sv
 set_global_assignment -name SYSTEMVERILOG_FILE memory_stage.sv
 set_global_assignment -name SYSTEMVERILOG_FILE writeback_stage.sv
+set_global_assignment -name SYSTEMVERILOG_FILE mem_unit.sv

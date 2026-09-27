@@ -23,7 +23,7 @@ module jasc_ALU import jasc_pkg::*;
 			SRA:  result = signed'(a) >>> b[4:0];
 			SLT:  result = (signed'(a) < signed'(b)) ? 1'b1 : 1'b0;
 			SLTU: result = (a < b) ? 1'b1 : 1'b0;
-			default: result = 'x;
+			default: // throw an exception
 		endcase
 	end
 	
