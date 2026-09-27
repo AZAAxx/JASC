@@ -1,4 +1,5 @@
-module JASC (
+module JASC import jasc_pkg::*;
+	(
 	input logic       clk,
 	input logic       rst_n,
 	mem_if.master     imem,
@@ -43,7 +44,7 @@ module JASC (
 	
 	logic [31:0] pc;
 	logic [31:0] next_pc;
-	always_ff(posedge clk, negedge rst_n) begin
+	always_ff @(posedge clk, negedge rst_n) begin
 		if(!rst_n) pc <= '0;
 		else pc <= next_pc;
 	end
@@ -82,7 +83,7 @@ module JASC (
 			.id_ex(id_ex_i), 
 			.ex_mem(ex_mem_o),
 			
-			.next_pc(next_pc),
+			.next_pc(next_pc)
 	);
 	
 	memory_stage s4 (
@@ -104,12 +105,13 @@ module JASC (
 	);
 	 
 	// Interface registers 
-	always_ff(posedge clk, negedge rst_n) begin
+	always_ff @(posedge clk, negedge rst_n) begin
 		if(!rst_n) begin
 			if_id_i <= '0;
 			id_ex_i <= '0;
 			ex_mem_i <= '0;
 			mem_wb_i <= '0;
+		end
 		else begin
 			if_id_i <= if_id_o;
 			id_ex_i <= id_ex_o;

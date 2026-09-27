@@ -1,11 +1,11 @@
-module writeback_stage import jasc_pkg::*
+module writeback_stage import jasc_pkg::*;
 	(
 		input mem_wb_t         mem_wb,
 		
 		// Register File interface
 		output logic [4:0]     rd_addr,
 		output logic [31:0]    rd_wdata,
-		output logic           rd_write_en,
+		output logic           rd_write_en
 	);
 
 	

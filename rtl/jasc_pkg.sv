@@ -41,7 +41,7 @@ package jasc_pkg;
 	
 	// Next PC MUX Enum
 	typedef enum logic [1:0] {
-		NEXTPC_BRANCH                      // PC = PC + IMM     IF alu_res = 1   (enables branches)
+		NEXTPC_BRANCH,                     // PC = PC + IMM     IF alu_res = 1   (enables branches)
 		NEXTPC_PC_4,                       // PC = PC + 4
 		NEXTPC_PC_IMM,                     // PC = PC + IMM
 		NEXTPC_RS1_IMM                     // PC = RS1 = IMM
@@ -154,10 +154,8 @@ package jasc_pkg;
 	// Pipeline Control Signals //
 	//////////////////////////////
 	
-	
-	typedef struct packed {
-
-	} pipeline_ctrl_signals_t;
+	//typedef struct packed {
+	//} pipeline_ctrl_signals_t;
 	
 	
 	

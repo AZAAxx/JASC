@@ -22,7 +22,7 @@ module jasc_register_file
 	end
 	
 	// Write logic 
-	always_ff (posedge clk, negedge rst_n) begin
+	always_ff @(posedge clk, negedge rst_n) begin
 		if(!rst_n)  regs[31:0] <= '0;
 		else if(rd_write_en) begin
 				if(rd != '0) regs[rd] <= rd_wdata;

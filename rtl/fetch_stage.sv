@@ -1,4 +1,4 @@
-module fetch_stage import jasc_pkg::*
+module fetch_stage import jasc_pkg::*;
 	(
 		output if_id_t         if_id,
 		

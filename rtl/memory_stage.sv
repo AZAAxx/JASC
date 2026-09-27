@@ -1,4 +1,4 @@
-module memory_stage import jasc_pkg::*
+module memory_stage import jasc_pkg::*;
 	(
 		input ex_mem_t         ex_mem,
 		output mem_wb_t        mem_wb,
@@ -23,7 +23,7 @@ module memory_stage import jasc_pkg::*
 		mem_wb.info.mem_wdata = '0;
 		
 		dmem_req = '0;
-		unique case (ex_mem.ctrl.mem_op) begin
+		unique case (ex_mem.ctrl.mem_op)
 			MEM_LOAD: begin
 					dmem_req.valid        = 1'b1;                    // request data
 					dmem_req.addr         = ex_mem.alu_res;

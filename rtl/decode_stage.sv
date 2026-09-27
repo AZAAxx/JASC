@@ -1,13 +1,13 @@
-module decode_stage import jasc_pkg::*
+module decode_stage import jasc_pkg::*;
 	(
-		input if_id_t          if_id;
-		output id_ex_t         id_ex;
+		input if_id_t          if_id,
+		output id_ex_t         id_ex,
 		
 		//Register File interface
 		output logic [4:0]     rs1_addr,
 		output logic [4:0]     rs2_addr,
 		input  logic [31:0]    rs1_rdata,
-		input  logic [31:0]    rs2_rdata,
+		input  logic [31:0]    rs2_rdata
 		
 	);
 	

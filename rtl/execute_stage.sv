@@ -1,9 +1,9 @@
-module execute_stage import jasc_pkg::*
+module execute_stage import jasc_pkg::*;
 	(
 		input id_ex_t          id_ex,
 		output ex_mem_t        ex_mem,
 		
-		output logic [31:0]    next_pc,
+		output logic [31:0]    next_pc
 	);
 	
 	
@@ -58,12 +58,16 @@ module execute_stage import jasc_pkg::*
 	// Next PC //
 	/////////////
 	
-	alias rs1 = id_ex.info.rs1_rdata;
-	alias rs2 = id_ex.info.rs2_rdata;
-	alias pc  = id_ex.info.pc_rdata;
+	logic [31:0] rs1; // for convenience
+	logic [31:0] rs2;
+	logic [31:0] pc;
+
+	assign rs1 = id_ex.info.rs1_rdata;
+	assign rs2 = id_ex.info.rs2_rdata;
+	assign pc  = id_ex.info.pc_rdata;
 
 	always_comb begin
-		next_pc = pc + 32'b4;
+		next_pc = pc + 32'd4;
 		
 		unique case (id_ex.ctrl.next_pc_sel)
 			NEXTPC_BRANCH: begin
@@ -76,7 +80,7 @@ module execute_stage import jasc_pkg::*
 						BRANCH_GEU: if(rs1 >= rs2)                    next_pc = pc + id_ex.imm;
 					endcase
 				end
-			NEXTPC_PC_4:    next_pc = pc + 32'b4;
+			NEXTPC_PC_4:    next_pc = pc + 32'd4;
 			NEXTPC_PC_IMM:  next_pc = (pc + id_ex.imm) & 32'hFFFFFFFE;
 			NEXTPC_RS1_IMM: next_pc = (rs1 + id_ex.imm) & 32'hFFFFFFFE;
 		endcase

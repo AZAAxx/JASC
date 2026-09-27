@@ -1,4 +1,4 @@
-module jasc_decoder import jasc_pkg::*
+module jasc_decoder import jasc_pkg::*;
 	(
 		input logic [31:0]    instr,
 		
@@ -22,6 +22,12 @@ module jasc_decoder import jasc_pkg::*
 	////////////////////////////////
 	
 	always_comb begin
+		rd     = '0;
+		rs1    = '0;
+		rs2    = '0;
+		funct3 = '0;
+		funct7 = '0;
+		imm    = '0;
 		unique case (opcode)
 			OPCODE_OP:       // R-type encoding
 				begin
@@ -93,9 +99,9 @@ module jasc_decoder import jasc_pkg::*
 	// Generating control signals //
 	////////////////////////////////
 	
-	
-	// Main Decoder //
 	always_comb begin
+	
+		// Main Decoder Part //
 		
 		// Default values
 		ctrl.opA_sel = OPA_RF;
@@ -104,7 +110,6 @@ module jasc_decoder import jasc_pkg::*
 		ctrl.branch_type = BRANCH_NONE;
 	
 		ctrl.mem_op = MEM_NONE;
-		ctrl.mem_byte_en = 4'b1111;
 		
 		ctrl.rd_wdata_sel = RD_ALU;
 		ctrl.rd_write_en = 1'b0;
@@ -135,7 +140,7 @@ module jasc_decoder import jasc_pkg::*
 						7'h05: ctrl.branch_type = BRANCH_GE;
 						7'h06: ctrl.branch_type = BRANCH_LTU;
 						7'h07: ctrl.branch_type = BRANCH_GEU;
-						default: $error("Unmatched funct3 value for branching: %0d", funct3");
+						default: $error("Unmatched funct3 value for branching: %0d", funct3);
 					endcase
 				end
 			OPCODE_JAL: begin
@@ -163,24 +168,27 @@ module jasc_decoder import jasc_pkg::*
 				// Transfer control
 			end
 		endcase
-	end
+
 	
 	
 	
 	
-	// ALU Control Decoder //
-	always_comb begin
+		// ALU Control Decoder Part //
+
 		//Default Value
 		ctrl.alu_op = ALU_NONE;
-		ctrl.mem_byte_en = '1;
+		ctrl.mem_byte_en = 4'b1111;
 		
 		unique case(opcode)
 			OPCODE_OP, 
 			OPCODE_OP_IMM: begin
 					unique case (funct3) 
 						3'h0: begin
-							if(funct7 == 7'h00) ctrl.alu_op = ALU_ADD;
-							else ctrl.alu_op = ALU_SUB;
+							unique case (funct7)
+							  7'h00: ctrl.alu_op = ALU_ADD;
+							  7'h20: ctrl.alu_op = ALU_SUB;
+							  default: ctrl.alu_op = ALU_NONE;
+						 endcase
 						end
 						3'h1: ctrl.alu_op = ALU_SLL;
 						3'h2: ctrl.alu_op = ALU_SLT;
@@ -201,13 +209,14 @@ module jasc_decoder import jasc_pkg::*
 						3'h0, 3'h4: ctrl.mem_byte_en = 4'b0001;   // lb, sb
 						3'h1, 3'h5: ctrl.mem_byte_en = 4'b0011;   // lh, sh
 						3'h2: ctrl.mem_byte_en = 4'b1111;
-						default: // throw an exception
+						default: ctrl.mem_byte_en = 4'b1111;
 					endcase
 				end
 			OPCODE_BRANCH: begin
-				unique case (funct3)
-					7'h04, 7'h05: ctrl.alu_op = ALU_SLT;
-					7'h06, 7'h07: ctrl.alu_op = ALU_SLTU;
+					unique case (funct3)
+						7'h04, 7'h05: ctrl.alu_op = ALU_SLT;
+						7'h06, 7'h07: ctrl.alu_op = ALU_SLTU;
+					endcase
 				end 
 			OPCODE_JAL, 
 			OPCODE_JALR, 
