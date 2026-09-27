@@ -338,18 +338,6 @@ trap state
 
 providing a foundation for future instruction-level verification.
 
-## Tools & Technologies
-
-- **SystemVerilog**
-- **RTL Design**
-- **RISC-V RV32I**
-- **Intel Quartus**
-- **FPGA Design**
-- **CPU Microarchitecture**
-- **Digital Logic**
-- **Simulation & Verification**
-- **Formal Verification / RVFI (planned)**
-
 ## References
 
 - RISC-V ISA reference material included in the repository
