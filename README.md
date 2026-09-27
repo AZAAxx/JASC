@@ -1,8 +1,8 @@
 # JASC — RV32I RISC-V Processor
 
-JASC is an **in-development** 32-bit RISC-V processor implemented in SystemVerilog. The project currently establishes a modular five-stage pipeline architecture, typed control/pipeline interfaces, RV32I instruction decoding,and register-file infrastructure. ALU operations, and branch/jump control logic, fetch, memory, writeback, hazard handling, and verification infrastructure remain under development. The project is being developed as a hardware-design study of **CPU microarchitecture, RTL design, instruction decoding, datapaths, control logic, and FPGA implementation**.
+JASC is an **in-development** 32-bit RISC-V processor implemented in SystemVerilog. The project currently establishes a modular five-stage pipeline architecture, typed control/pipeline interfaces, RV32I instruction decoding, and register-file infrastructure. ALU operations, branch/jump control logic, fetch, memory, writeback, hazard handling, and verification infrastructure **remain under development**. The project is being developed as a hardware-design study of **CPU microarchitecture, RTL design, instruction decoding, datapaths, control logic, and FPGA implementation**.
 
-## Implemented RTL Architecture
+### Implemented RTL Architecture
 
 - 32-bit **RISC-V RV32I** processor architecture
 - Five-stage processor architecture: **Fetch → Decode → Execute → Memory → Writeback**
@@ -104,7 +104,7 @@ The resulting information is packaged into `id_ex_t`.
 
 ### 3. Execute
 
-`execute_stage.sv` performs datapath operations using the control signals generated during decode.
+`execute_stage.sv` defines the intended execute-stage datapath, including operand selection, ALU operations, branch comparison, and next-PC generation.
 
 Operand multiplexing supports:
 
@@ -127,11 +127,11 @@ The stage contains the `jasc_ALU` and generates:
 - Negative flag
 - Next PC
 
-Branch comparison logic supports `BEQ`, `BNE`, `BLT`, `BGE`, `BLTU`, `BGEU`. Jump target generation supports both PC-relative and register-relative addressing.
+The decoder and execute-stage control structures currently define support for BEQ, BNE, BLT, BGE, BLTU, and BGEU; execution and pipeline integration remain under development.
 
 ### 4. Memory
 
-`memory_stage.sv` provides the interface between the execute stage and the data-memory subsystem.
+`memory_stage.sv` defines the intended memory-access stage between execute and the data-memory subsystem.
 
 The control architecture distinguishes:
 
@@ -141,9 +141,7 @@ MEM_LOAD
 MEM_STORE
 ```
 
-The decoder also contains byte-enable control intended to support different memory access widths.
-
-The memory interface is currently being integrated into the datapath.
+The decoder also contains byte-enable control intended to support different memory access widths. The memory interface is currently being integrated into the datapath.
 
 ### 5. Writeback
 
@@ -168,7 +166,7 @@ RD_IMM
 ---
 ## ALU
 
-`jasc_ALU.sv` implements the processor's 32-bit arithmetic and logic unit.
+`jasc_ALU.sv` is the processor's 32-bit arithmetic and logic unit.
 
 Supported operations include:
 
@@ -237,7 +235,7 @@ mem_wb_t
 
 and an `instr_info_t` structure intended to carry architectural information required for debugging and future formal verification.
 
-## RISC-V Instructions
+## RISC-V Instruction Decoding
 
 The decoder currently recognizes the major RV32I opcode classes:
 
