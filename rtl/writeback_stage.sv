@@ -20,7 +20,7 @@ module writeback_stage import jasc_pkg::*
 	
 	//update register file, MUX for rd_wdata
 	always_comb begin
-		unique case (ctrl.rd_wdata_sel)
+		unique case (mem_wb.ctrl.rd_wdata_sel)
 			RD_ALU: rd_wdata = mem_wb.alu_res;
 			RD_MEM: rd_wdata = mem_wb.mem_rdata;
 			RD_IMM: rd_wdata = mem_wb.imm;

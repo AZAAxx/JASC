@@ -10,12 +10,11 @@ module jasc_decoder import jasc_pkg::*
 	);
 	
 	
-	logic [6:0] opcode = instr[6:0];
+	logic [6:0] opcode;
+	assign opcode = instr[6:0];
 	
 	logic [2:0] funct3;
 	logic [6:0] funct7;	
-	logic [4:0] rd, rs1, rs2;
-	logic [31:0] imm;
 	
 	
 	////////////////////////////////
@@ -82,7 +81,7 @@ module jasc_decoder import jasc_pkg::*
 					funct7 = '0;
 					imm    = signed'({instr[31], instr[19:12], instr[20], instr[30:21], 1'b0});
 				end
-			default: // throw an exception
+			default: $error("Invalid opcode: %0d", opcode);
 		endcase
 	end
 	
@@ -101,7 +100,7 @@ module jasc_decoder import jasc_pkg::*
 		// Default values
 		ctrl.opA_sel = OPA_RF;
 		ctrl.opB_sel = OPB_IMM;
-		ctrl.next_pc_sel = NEXTPC_PC_1;
+		ctrl.next_pc_sel = NEXTPC_PC_4;
 		ctrl.branch_type = BRANCH_NONE;
 	
 		ctrl.mem_op = MEM_NONE;
@@ -136,7 +135,7 @@ module jasc_decoder import jasc_pkg::*
 						7'h05: ctrl.branch_type = BRANCH_GE;
 						7'h06: ctrl.branch_type = BRANCH_LTU;
 						7'h07: ctrl.branch_type = BRANCH_GEU;
-						default: // throw an exception
+						default: $error("Unmatched funct3 value for branching: %0d", funct3");
 					endcase
 				end
 			OPCODE_JAL: begin

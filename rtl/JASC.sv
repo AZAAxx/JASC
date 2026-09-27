@@ -6,26 +6,32 @@ module JASC (
 	);
 	
 	// Pipeline register structs
-	if_id_t           if_id;
-	id_ex_t           id_ex;
-	ex_mem_t          ex_mem;
-	mem_wb_t          mem_wb;
+	if_id_t           if_id_o;
+	id_ex_t           id_ex_o;
+	ex_mem_t          ex_mem_o;
+	mem_wb_t          mem_wb_o;
+	
+	if_id_t           if_id_i;
+	id_ex_t           id_ex_i;
+	ex_mem_t          ex_mem_i;
+	mem_wb_t          mem_wb_i;
 	
 	
 	//IMEM and DMEM interface
 	imem_req_t        imem_req;
 	imem_rsp_t        imem_rsp;
+	
   	dmem_req_t        dmem_req;
 	dmem_rsp_t        dmem_rsp;
 	
 	
 	//register file interface
-	logic [4:0]     rs1_addr,
-	logic [4:0]     rs2_addr,
-	logic [31:0]    rs1_rdata,
-	logic [31:0]    rs2_rdata,
+	logic [4:0]     rs1_addr;
+	logic [4:0]     rs2_addr;
+	logic [31:0]    rs1_rdata;
+	logic [31:0]    rs2_rdata;
 	
-	logic [4:0]     rd_addr,
+	logic [4:0]     rd_addr;
 	logic [31:0]    rd_wdata;
 	logic           rd_write_en;
 	
@@ -49,7 +55,8 @@ module JASC (
 	////////////
 	
 	fetch_stage s1 (
-			.if_id(if_id)  
+			// pipeline interface
+			.if_id(if_id_o),
 			
 			.pc(pc),
 			
@@ -59,8 +66,9 @@ module JASC (
 	);
 	
 	decode_stage s2 (
-			.if_id(if_id),
-			.id_ex(id_ex), 
+			// pipeline interface
+			.if_id(if_id_i),
+			.id_ex(id_ex_o), 
 			
 			// Register file interface
 			.rs1_addr(rs1_addr),
@@ -70,15 +78,16 @@ module JASC (
 	);
 	
 	execute_stage s3 (
-			.id_ex(id_ex), 
-			.ex_mem(ex_mem)
+			// pipeline interface
+			.id_ex(id_ex_i), 
+			.ex_mem(ex_mem_o),
 			
 			.next_pc(next_pc),
 	);
 	
 	memory_stage s4 (
-			.ex_mem(ex_mem), 
-			.mem_wb(mem_wb),
+			.ex_mem(ex_mem_i), 
+			.mem_wb(mem_wb_o),
 			
 			// DMEM interface
 			.dmem_req(dmem_req),
@@ -86,7 +95,7 @@ module JASC (
 	);
 	
 	writeback_stage s5 (
-			.mem_wb(mem_wb),
+			.mem_wb(mem_wb_i),
 			
 			// Register file interface
 			.rd_addr(rd_addr),
@@ -94,6 +103,20 @@ module JASC (
 			.rd_write_en(rd_write_en)
 	);
 	 
+	// Interface registers 
+	always_ff(posedge clk, negedge rst_n) begin
+		if(!rst_n) begin
+			if_id_i <= '0;
+			id_ex_i <= '0;
+			ex_mem_i <= '0;
+			mem_wb_i <= '0;
+		else begin
+			if_id_i <= if_id_o;
+			id_ex_i <= id_ex_o;
+			ex_mem_i <= ex_mem_o;
+			mem_wb_i <= mem_wb_o;
+		end
+	end
 	 
 	 
 	///////////////////

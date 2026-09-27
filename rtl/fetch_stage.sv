@@ -14,8 +14,8 @@ module fetch_stage import jasc_pkg::*
 		imem_req.valid = 1'b1;
 		imem_req.pc    = pc;
 
-		if_id.valid = fetch_rsp.valid;
-		if_id.instr = fetch_rsp.instr;
+		if_id.valid = imem_rsp.valid;
+		if_id.instr = imem_rsp.instr;
 		if_id.pc    = pc;
 	end
 

@@ -10,26 +10,27 @@ module jasc_ALU import jasc_pkg::*;
 	);
 	
 	always_comb begin
-		result = '0; // default value
+		result = 32'b0; // default value
 		
 		unique case (alu_op)
-			ADD:  result = a + b;
-			SUB:  result = a - b;
-			AND:  result = a & b;
-			OR:   result =  a | b;
-			XOR:  result = a ^ b;
-			SLL:  result = a << b[4:0];
-			SRL:  result = a >> b[4:0];
-			SRA:  result = signed'(a) >>> b[4:0];
-			SLT:  result = (signed'(a) < signed'(b)) ? 1'b1 : 1'b0;
-			SLTU: result = (a < b) ? 1'b1 : 1'b0;
-			default: // throw an exception
+			ALU_NONE: result = 32'b0; // default value
+			ALU_ADD:  result = a + b;
+			ALU_SUB:  result = a - b;
+			ALU_AND:  result = a & b;
+			ALU_OR:   result =  a | b;
+			ALU_XOR:  result = a ^ b;
+			ALU_SLL:  result = a << b[4:0];
+			ALU_SRL:  result = a >> b[4:0];
+			ALU_SRA:  result = signed'(a) >>> b[4:0];
+			ALU_SLT:  result = (signed'(a) < signed'(b)) ? 1'b1 : 1'b0;
+			ALU_SLTU: result = (a < b) ? 1'b1 : 1'b0;
+			default: $error("Invalid ALU operation: %0d", alu_op);
 		endcase
 	end
 	
 	always_comb begin
 		flag_z = (result == '0);
-		flag_n = (result <  '0);
+		flag_n = result[31];
 	end
 	
 endmodule

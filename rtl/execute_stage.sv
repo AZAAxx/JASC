@@ -28,7 +28,7 @@ module execute_stage import jasc_pkg::*
 		endcase
 		
 		unique case (id_ex.ctrl.opB_sel)
-			OPB_RF:    b = id_ex.ctrl.rs2_rdata;
+			OPB_RF:    b = id_ex.info.rs2_rdata;
 			OPB_IMM:   b = id_ex.imm;
 			OPB_IMM_4: b = 32'h04;
 		endcase
@@ -46,7 +46,7 @@ module execute_stage import jasc_pkg::*
 		.b             (b),
 		.alu_op        (id_ex.ctrl.alu_op),
 		
-		.alu_res       (alu_res),
+		.result        (alu_res),
 		.flag_z        (flag_z),
 		.flag_n        (flag_n)
 	);
@@ -60,10 +60,10 @@ module execute_stage import jasc_pkg::*
 	
 	alias rs1 = id_ex.info.rs1_rdata;
 	alias rs2 = id_ex.info.rs2_rdata;
-	alias pc  = id_ex.info.pc_rdata
+	alias pc  = id_ex.info.pc_rdata;
 
 	always_comb begin
-		next_pc = pc + 1'b1;
+		next_pc = pc + 32'b4;
 		
 		unique case (id_ex.ctrl.next_pc_sel)
 			NEXTPC_BRANCH: begin
@@ -73,13 +73,12 @@ module execute_stage import jasc_pkg::*
 						BRANCH_LT:  if(signed'(rs1) <   signed'(rs2)) next_pc = pc + id_ex.imm;
 						BRANCH_GE:  if(signed'(rs1) >=  signed'(rs2)) next_pc = pc + id_ex.imm;
 						BRANCH_LTU: if(rs1 <  rs2)                    next_pc = pc + id_ex.imm;
-						BRANCH_GEU: if(rs1 == rs2)                    next_pc = pc + id_ex.imm;
-						default: // throw an exception
+						BRANCH_GEU: if(rs1 >= rs2)                    next_pc = pc + id_ex.imm;
 					endcase
 				end
-			NEXTPC_PC_1:    next_pc = pc + 1'b1;
-			NEXTPC_PC_IMM:  next_pc = pc + id_ex.imm;
-			NEXTPC_RS1_IMM: next_pc = rs1 + id_ex.imm;
+			NEXTPC_PC_4:    next_pc = pc + 32'b4;
+			NEXTPC_PC_IMM:  next_pc = (pc + id_ex.imm) & 32'hFFFFFFFE;
+			NEXTPC_RS1_IMM: next_pc = (rs1 + id_ex.imm) & 32'hFFFFFFFE;
 		endcase
 	end
 	
@@ -95,7 +94,7 @@ module execute_stage import jasc_pkg::*
 		
 		ex_mem.info.pc_wdata  = next_pc;
 		
-		ex_mem.alu_res = alu_res
+		ex_mem.alu_res = alu_res;
 		ex_mem.flag_z = flag_z;
 		ex_mem.flag_n = flag_n;
 		

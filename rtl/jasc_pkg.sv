@@ -42,7 +42,7 @@ package jasc_pkg;
 	// Next PC MUX Enum
 	typedef enum logic [1:0] {
 		NEXTPC_BRANCH                      // PC = PC + IMM     IF alu_res = 1   (enables branches)
-		NEXTPC_PC_1,                       // PC = PC + 1
+		NEXTPC_PC_4,                       // PC = PC + 4
 		NEXTPC_PC_IMM,                     // PC = PC + IMM
 		NEXTPC_RS1_IMM                     // PC = RS1 = IMM
 	} next_pc_sel_e;
@@ -120,6 +120,7 @@ package jasc_pkg;
 		logic          valid;
 		ctrl_signals_t ctrl;
 		instr_info_t   info;
+		
 		logic [31:0]   imm;
 	} id_ex_t;
 
@@ -128,6 +129,7 @@ package jasc_pkg;
 		logic          valid;
 		ctrl_signals_t ctrl;
 		instr_info_t   info;
+		
 		logic [31:0]   alu_res;
 		logic          flag_z;
 		logic          flag_n;
@@ -139,6 +141,7 @@ package jasc_pkg;
 		logic          valid;
 		ctrl_signals_t ctrl;
 		instr_info_t   info;
+		
 		logic [31:0]   alu_res;
 		logic [31:0]   mem_rdata;
 		logic [31:0]   imm;
@@ -215,7 +218,7 @@ interface mem_if;
     );
 
     modport slave (    // memory
-        input  valid, addr, we, wsrtb, wdata,
+        input  valid, addr, we, wstrb, wdata,
         output ready, rvalid, rdata
     );
 

@@ -14,8 +14,7 @@ module decode_stage import jasc_pkg::*
 	
 	// Implemented signals
 	ctrl_signals_t ctrl;
-	logic [4:0]  rs1_addr, rs2_addr, rd_addr;
-	logic [31:0] rs1_rdata, rs2_rdata;
+	logic [4:0]  rd_addr;
 	logic [31:0] imm;
 	
 	
@@ -23,11 +22,11 @@ module decode_stage import jasc_pkg::*
 	// DECODER //
 	/////////////
 
-	// Drives the register file by producing the register address values
+	// Drives the register file by producing the register address values, assigns control signals
 	jasc_decoder decoder (
 		.instr         (if_id.instr), 
-		
 		.ctrl          (ctrl),
+		
 		.rs1           (rs1_addr),
 		.rs2           (rs2_addr),
 		.rd            (rd_addr),
